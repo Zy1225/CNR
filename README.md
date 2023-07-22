@@ -1,4 +1,4 @@
-# On the Robust Estimation of Spatial Autoregressive Models
+# Cokrig-and-Regress for Spatially Misaligned Data
 
 This repository code contain template code associated with the manuscript "Cokrig-and-Regress for Spatially Misaligned Data" by [Tho](https://rsfas.anu.edu.au/about/staff-directory/zhi-yang-tho), [Hui](https://francishui.netlify.app/), [Welsh](https://cbe.anu.edu.au/about/staff-directory/professor-alan-welsh), and [Zou](https://cbe.anu.edu.au/about/staff-directory/dr-tao-zou).
 
