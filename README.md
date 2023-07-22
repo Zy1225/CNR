@@ -15,7 +15,7 @@ There are currently two directories in this repository:
 If you find something that looks like a bug/issue, please use Github issues and post it up there. As much as possible, please include in the issue:
 
 1.  A description of the bug/issue;
-2.  Paste-able code along with some comments that reproduces the problem. If you also have an idea of how to fix the problem, then that is also much appreciated;
+2.  Paste-able code along with some comments that reproduces the problem e.g., using the [reprex](https://cran.r-project.org/web/packages/reprex/index.html) package. If you also have an idea of how to fix the problem, then that is also much appreciated;
 3.  Required data files etc...
 
 Alternatively, please contact the corresponding author at [ZhiYang.Tho\@anu.edu.au](mailto:ZhiYang.Tho@anu.edu.au).
