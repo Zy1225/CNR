@@ -4,7 +4,7 @@
 #' @description 
 #' Process results for simulation study. See Section 4 and Appendix C of the associated manuscript "Cokrig-and-Regress for Spatially Misaligned Data" for more details.
 #' 
-#' @param simulation_list A list with each element representing the results of each simulation run. In particular, each element is a list with elements named 'sim_data' (returned by \code{simulate_misaligned} function), 'cnr_out' (returned by \code{cnr} function), 'pre_bs' (returned by \code{bootstrap_cnr} function with \code{bootstrap_type = 'Prelim'}), 'second_bs' (returned by \code{bootstrap_cnr} function with \code{bootstrap_type = 'Second'}), 'ind_bs' (returned by \code{bootstrap_cnr} function with \code{bootstrap_type = 'Ind'}), 'lnmr_L1' (returned by \code{lnmr} function with \code{l=1}), 'lnmr_L3' (returned by \code{lnmr} function with \code{l=3}), and 'lnmr_L5' (returned by \code{lnmr} function with \code{l=5}).
+#' @param simulation_list A list with each element representing the results of each simulation run. In particular, each element is a list with elements named 'sim_data' (returned by \code{simulate_misaligned} function), 'cnr_out' (returned by \code{cnr} function), 'pre_bs' (returned by \code{bootstrap_cnr} function with \code{bootstrap_type = 'Prelim'}), 'second_bs' (returned by \code{bootstrap_cnr} function with \code{bootstrap_type = 'Second'}), 'NCC_bs' (returned by \code{bootstrap_cnr} function with \code{bootstrap_type = 'NCC'}), 'lnmr_L1' (returned by \code{lnmr} function with \code{l=1}), 'lnmr_L3' (returned by \code{lnmr} function with \code{l=3}), and 'lnmr_L5' (returned by \code{lnmr} function with \code{l=5}).
 #' @param true_beta A vector of true mean regression coefficients.
 #' @param true_sigma2_rho True variance parameter of spatial random effect.
 #' @param true_alpha_rho True Mat\'{e}rn range parameter for the spatial random effect.
@@ -38,8 +38,8 @@ simulation_result = function(simulation_list, true_beta, true_sigma2_rho, true_a
     xlist$second_bs$bootstrap_hatbeta_mean
   }))
   
-  hatbeta_ind_bs_mat = t(sapply(simulation_list, FUN = function(xlist){
-    xlist$ind_bs$bootstrap_hatbeta_mean
+  hatbeta_NCC_bs_mat = t(sapply(simulation_list, FUN = function(xlist){
+    xlist$NCC_bs$bootstrap_hatbeta_mean
   }))
   
   hatbeta_1nmr_mat = t(sapply(simulation_list, FUN = function(xlist){
@@ -88,9 +88,9 @@ simulation_result = function(simulation_list, true_beta, true_sigma2_rho, true_a
     apply(t(sapply(simulation_list,function(xlist){
       apply(xlist$pre_bs$hatbeta_mat,2,sd)
     })),2,mean) / apply(hatbeta_cnr_mat,2,sd),
-    #Method = CNR, Variance Estimator = Ind-Bootstrap
+    #Method = CNR, Variance Estimator = NCC-Bootstrap
     apply(t(sapply(simulation_list,function(xlist){
-      apply(xlist$ind_bs$hatbeta_mat,2,sd)
+      apply(xlist$NCC_bs$hatbeta_mat,2,sd)
     })),2,mean) / apply(hatbeta_cnr_mat,2,sd),
     #Method = BC-CNR, Variance Estimator = Naive
     apply(t(sapply(simulation_list, function(xlist){
@@ -108,9 +108,9 @@ simulation_result = function(simulation_list, true_beta, true_sigma2_rho, true_a
     apply(t(sapply(simulation_list,function(xlist){
       apply(xlist$pre_bs$hatbeta_mat,2,sd)
     })),2,mean) / apply(hatbeta_bc_mat,2,sd),
-    #Method = BC-CNR, Variance Estimator = Ind-Bootstrap
+    #Method = BC-CNR, Variance Estimator = NCC-Bootstrap
     apply(t(sapply(simulation_list,function(xlist){
-      apply(xlist$ind_bs$hatbeta_mat,2,sd)
+      apply(xlist$NCC_bs$hatbeta_mat,2,sd)
     })),2,mean) / apply(hatbeta_bc_mat,2,sd),
     #Method = 1-NMR, Variance Estimator = Naive
     apply(t(sapply(simulation_list, function(xlist){
@@ -192,10 +192,10 @@ simulation_result = function(simulation_list, true_beta, true_sigma2_rho, true_a
       (true_beta < apply(xlist$pre_bs$hatbeta_mat,2, function(x){quantile(x,probs = 0.975)}) )
   })), 2, mean)
   
-  #Method = CNR, CI Method = Ind-Bootstrap
-  hatbeta_cnr_ind_bs_quantile_coverage = apply(t(sapply(simulation_list,function(xlist){
-    (true_beta > apply(xlist$ind_bs$hatbeta_mat,2, function(x){quantile(x,probs = 0.025)}) ) & 
-      (true_beta < apply(xlist$ind_bs$hatbeta_mat,2, function(x){quantile(x,probs = 0.975)}) )
+  #Method = CNR, CI Method = NCC-Bootstrap
+  hatbeta_cnr_NCC_bs_quantile_coverage = apply(t(sapply(simulation_list,function(xlist){
+    (true_beta > apply(xlist$NCC_bs$hatbeta_mat,2, function(x){quantile(x,probs = 0.025)}) ) & 
+      (true_beta < apply(xlist$NCC_bs$hatbeta_mat,2, function(x){quantile(x,probs = 0.975)}) )
   })), 2, mean)
   
   #Method = BC-CNR, CI Method = Naive
@@ -228,7 +228,7 @@ simulation_result = function(simulation_list, true_beta, true_sigma2_rho, true_a
       (true_beta < xlist$lnmr_L5$hatbeta + qnorm(0.975) * sqrt(diag(xlist$lnmr_L5$naive_cov)))
   })), 2, mean)
   
-  beta_CI_coverage_mat = rbind(hatbeta_cnr_naive_coverage, hatbeta_cnr_naive_BC_coverage, hatbeta_cnr_bs_quantile_coverage, hatbeta_cnr_unadj_bs_quantile_coverage, hatbeta_cnr_ind_bs_quantile_coverage,
+  beta_CI_coverage_mat = rbind(hatbeta_cnr_naive_coverage, hatbeta_cnr_naive_BC_coverage, hatbeta_cnr_bs_quantile_coverage, hatbeta_cnr_unadj_bs_quantile_coverage, hatbeta_cnr_NCC_bs_quantile_coverage,
                                hatbeta_bccnr_naive_coverage, hatbeta_bccnr_naive_BC_coverage,
                                hatbeta_1nmr_naive_coverage, hatbeta_3nmr_naive_coverage, hatbeta_5nmr_naive_coverage)
   
@@ -253,9 +253,9 @@ simulation_result = function(simulation_list, true_beta, true_sigma2_rho, true_a
     apply(xlist$pre_bs$hatbeta_mat,2, function(x){quantile(x,probs = 0.975)} ) -  apply(xlist$pre_bs$hatbeta_mat,2, function(x){quantile(x,probs = 0.025)}) 
   })), 2, mean)
   
-  #Method = CNR, CI Method = Ind-Bootstrap
-  hatbeta_cnr_ind_bs_quantile_width = apply(t(sapply(simulation_list,function(xlist){
-    apply(xlist$ind_bs$hatbeta_mat,2, function(x){quantile(x,probs = 0.975)} ) -  apply(xlist$ind_bs$hatbeta_mat,2, function(x){quantile(x,probs = 0.025)}) 
+  #Method = CNR, CI Method = NCC-Bootstrap
+  hatbeta_cnr_NCC_bs_quantile_width = apply(t(sapply(simulation_list,function(xlist){
+    apply(xlist$NCC_bs$hatbeta_mat,2, function(x){quantile(x,probs = 0.975)} ) -  apply(xlist$NCC_bs$hatbeta_mat,2, function(x){quantile(x,probs = 0.025)}) 
   })), 2, mean)
   
   #Method = BC-CNR, CI Method = Naive
@@ -284,7 +284,7 @@ simulation_result = function(simulation_list, true_beta, true_sigma2_rho, true_a
     2*qnorm(0.975) * sqrt(diag(xlist$lnmr_L5$naive_cov))
   })), 2, mean)
   
-  beta_CI_average_width_mat = rbind(hatbeta_cnr_naive_width, hatbeta_cnr_naive_BC_width, hatbeta_cnr_bs_quantile_width, hatbeta_cnr_unadj_bs_quantile_width, hatbeta_cnr_ind_bs_quantile_width,
+  beta_CI_average_width_mat = rbind(hatbeta_cnr_naive_width, hatbeta_cnr_naive_BC_width, hatbeta_cnr_bs_quantile_width, hatbeta_cnr_unadj_bs_quantile_width, hatbeta_cnr_NCC_bs_quantile_width,
                                     hatbeta_bccnr_naive_width, hatbeta_bccnr_naive_BC_width,
                                     hatbeta_1nmr_naive_width, hatbeta_3nmr_naive_width, hatbeta_5nmr_naive_width)
   
@@ -295,7 +295,7 @@ simulation_result = function(simulation_list, true_beta, true_sigma2_rho, true_a
                             rmse_beta_mat[,-1])
   
   ase_esd_ratio_df = data.frame(Method = c(rep('CNR',5), rep('BC-CNR',5), '1-NMR', '3-NMR', '5-NMR'),
-                                Variance_estimator = c( rep(c('Naive', 'Naive BC', 'Bootstrap', 'Unadj-Bootstrap', 'Ind-Bootstrap'),2), rep('Naive',3) ),
+                                Variance_estimator = c( rep(c('Naive', 'Naive BC', 'Bootstrap', 'Unadj-Bootstrap', 'NCC-Bootstrap'),2), rep('Naive',3) ),
                                 ase_esd_ratio_mat[,-1])
   
   bias_theta_err_df = data.frame(Method = c('CNR','BC-CNR','1-NMR','3-NMR','5-NMR'),
@@ -305,11 +305,11 @@ simulation_result = function(simulation_list, true_beta, true_sigma2_rho, true_a
                                  rmse_theta_err_mat)
   
   beta_CI_coverage_df = data.frame(Method = c(rep('CNR',5), rep('BC-CNR',2), '1-NMR', '3-NMR', '5-NMR'),
-                                   CI_method = c('Naive', 'Naive BC', 'Bootstrap', 'Unadj-Bootstrap', 'Ind-Bootstrap', 'Naive', 'Naive BC', rep('Naive',3)),
+                                   CI_method = c('Naive', 'Naive BC', 'Bootstrap', 'Unadj-Bootstrap', 'NCC-Bootstrap', 'Naive', 'Naive BC', rep('Naive',3)),
                                    beta_CI_coverage_mat[,-1])
   
   beta_CI_average_width_df = data.frame(Method = c(rep('CNR',5), rep('BC-CNR',2), '1-NMR', '3-NMR', '5-NMR'),
-                                        CI_method = c('Naive', 'Naive BC', 'Bootstrap', 'Unadj-Bootstrap', 'Ind-Bootstrap', 'Naive', 'Naive BC', rep('Naive',3)),
+                                        CI_method = c('Naive', 'Naive BC', 'Bootstrap', 'Unadj-Bootstrap', 'NCC-Bootstrap', 'Naive', 'Naive BC', rep('Naive',3)),
                                         beta_CI_average_width_mat[,-1])
   
   return(list(

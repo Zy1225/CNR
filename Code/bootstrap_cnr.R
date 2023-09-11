@@ -10,8 +10,8 @@
 #' @param T_bootstrap Number of bootstrap datasets.
 #' @param bootstrap_CI_level Confidence level for constructing the bootstrap percentile intervals of the mean regression coefficients and conditional smoothers (if \code{!is.null(cnr_out$smooth_list)}) with the default being 0.95.
 #' @param cnr_out A list returned by the \code{cnr} function.
-#' @param bootstrap_type Can be one of 'Prelim', 'Second', and 'Ind', representing the preliminary, second and independent bootstraps, respetively.
-#' @param pre_bs A list returned by this function, representing the preliminary bootstrap results. This only has to be specified when \code{bootstrap_type %in% c('Second','Ind')}.
+#' @param bootstrap_type Can be one of 'Prelim', 'Second', and 'NCC', representing the preliminary, second and non-cross-correlated bootstraps, respetively.
+#' @param pre_bs A list returned by this function, representing the preliminary bootstrap results. This only has to be specified when \code{bootstrap_type %in% c('Second','NCC')}.
 #' 
 #' @return A list with the following elements:
 #' \item{hatnu_mat_x:}{A matrix with each row representing the Mat\'{e}rn smoothness parameters of the covariates that are assumed known for each bootstrap sample.}
@@ -71,12 +71,12 @@ bootstrap_cnr = function(T_bootstrap, bootstrap_CI_level = 0.95, cnr_out, bootst
   }
   
   if(bootstrap_type %in% c('Prelim', 'Second')){
-    tchol_hatSigma_mat = compute_tchol_hatSigma_mat(cnr_out = cnr_out, ind = FALSE)
+    tchol_hatSigma_mat = compute_tchol_hatSigma_mat(cnr_out = cnr_out, NCC = FALSE)
   }else{
-    tchol_hatSigma_mat = compute_tchol_hatSigma_mat(cnr_out = cnr_out, ind = TRUE)
+    tchol_hatSigma_mat = compute_tchol_hatSigma_mat(cnr_out = cnr_out, NCC = TRUE)
   }
   
-  if(bootstrap_type %in% c('Second', 'Ind')){
+  if(bootstrap_type %in% c('Second', 'NCC')){
     tchol_hatSigma_err = compute_tchol_hatSigma_err(cnr_out = cnr_out, bc = TRUE, pre_bs = pre_bs)
   }else{
     tchol_hatSigma_err = compute_tchol_hatSigma_err(cnr_out = cnr_out, bc = FALSE, pre_bs = NULL)
@@ -178,17 +178,17 @@ bootstrap_cnr = function(T_bootstrap, bootstrap_CI_level = 0.95, cnr_out, bootst
 #' Pre-compute lower Cholesky factor of the CNR estimated covariance matrix for all covariates, which can then be used to save computational effort for bootstrap.
 #' 
 #' @param cnr_out A list returned by the \code{cnr} function.
-#' @param ind Logical. If \code{ind = TRUE}, then the estimated cross-correlation matrix is set to be an identity matrix, i.e., ignoring the estimated cross-correlation between the covariates, before computing the lower Cholesky factor. This is set to be \code{TRUE} only when pre-computing the lower Cholesky factor for independent bootstrap.
+#' @param NCC Logical. If \code{NCC = TRUE}, then the estimated cross-correlation matrix is set to be an identity matrix, i.e., ignoring the estimated cross-correlation between the covariates, before computing the lower Cholesky factor. This is set to be \code{TRUE} only when pre-computing the lower Cholesky factor for non-cross-correlated bootstrap.
 #' 
 #' @return the lower Cholesky factor of the CNR estimated covariance matrix of all covariates.
 
-compute_tchol_hatSigma_mat = function(cnr_out, ind = FALSE){
+compute_tchol_hatSigma_mat = function(cnr_out, NCC = FALSE){
   K = length(cnr_out$hatnu_vec_x)
   m_n = dim(vec2symMat(cnr_out$dist_vec, diag = F))[1]
   hatL_k_list = lapply(1:K, function(k){
     t(chol(cnr_out$hatsigma2_vec_x[k] * vec2symMat(geoR::matern(u = cnr_out$dist_vec, kappa = cnr_out$hatnu_vec_x[k], phi = (1/(cnr_out$hatalpha_vec_x[k] ))), diag = F ) + cnr_out$hattau_vec_x[k] * diag(m_n)))
   })
-  if(!ind){
+  if(!NCC){
     # hatR = cnr_out$hatR
     # diag(hatR) = 1
     # hatSigma_mat = as.matrix(bdiag(hatL_k_list)  %*% (hatR %x% diag(m_n) ) %*%  t( bdiag(hatL_k_list) ) )
@@ -206,7 +206,7 @@ compute_tchol_hatSigma_mat = function(cnr_out, ind = FALSE){
 #' Pre-compute lower Cholesky factor of the CNR estimated covariance matrix for spatial random effects plus residuals., which can then be used to save computational effort for bootstrap.
 #' 
 #' @param cnr_out A list returned by the \code{cnr} function.
-#' @param bc Logical. If \code{bc = TRUE}, then the CNR estimates of the spatial covariance parameters are bias-corrected at the log scale using the preliminary bootstrap samples from \code{pre_bs}, before being used to compute the lower Cholesky factor. This is set to be \code{TRUE} only when pre-computing the lower Cholesky factor for second or independent bootstrap.
+#' @param bc Logical. If \code{bc = TRUE}, then the CNR estimates of the spatial covariance parameters are bias-corrected at the log scale using the preliminary bootstrap samples from \code{pre_bs}, before being used to compute the lower Cholesky factor. This is set to be \code{TRUE} only when pre-computing the lower Cholesky factor for second or non-cross-correlated bootstrap.
 #' @param pre_bs A list returned by the \code{bootstrap_cnr} function, representing the preliminary bootstrap results. This only has to be specified when \code{bc = TRUE}.
 #' 
 #' @return the lower Cholesky factor of the CNR estimated covariance matrix for spatial random effects plus residuals.

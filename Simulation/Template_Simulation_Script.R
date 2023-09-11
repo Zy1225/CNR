@@ -111,9 +111,9 @@ for(s in 1:n_sim){
   second_bs = bootstrap_cnr(T_bootstrap = T_bootstrap, bootstrap_CI_level = 0.95, cnr_out = cnr_out, bootstrap_type = 'Second', pre_bs = pre_bs)
   
   ##---------------------
-  #' ## Independent Bootstrap
+  #' ## Non-cross-correlated Bootstrap
   ##---------------------
-  ind_bs = bootstrap_cnr(T_bootstrap = T_bootstrap, bootstrap_CI_level = 0.95, cnr_out = cnr_out, bootstrap_type = 'Ind', pre_bs = pre_bs)
+  NCC_bs = bootstrap_cnr(T_bootstrap = T_bootstrap, bootstrap_CI_level = 0.95, cnr_out = cnr_out, bootstrap_type = 'NCC', pre_bs = pre_bs)
   
   ##---------------------
   #' ## 1-NMR
@@ -164,7 +164,7 @@ for(s in 1:n_sim){
                  smooth_list = NULL, discretized_num = NULL, smooth_CI_level = NULL)
   
   simulation_list[[s]] = list(
-    sim_data = sim_data, cnr_out = cnr_out, pre_bs = pre_bs, second_bs = second_bs, ind_bs = ind_bs, lnmr_L1 = lnmr_L1, lnmr_L3 = lnmr_L3, lnmr_L5 = lnmr_L5
+    sim_data = sim_data, cnr_out = cnr_out, pre_bs = pre_bs, second_bs = second_bs, NCC_bs = NCC_bs, lnmr_L1 = lnmr_L1, lnmr_L3 = lnmr_L3, lnmr_L5 = lnmr_L5
   )
 }
 
