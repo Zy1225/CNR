@@ -5,12 +5,13 @@
 #' Perform parametric bootstrap for bias-correction or uncertainty quantification for cokrig-and-regress
 #' 
 #' @details 
-#' This function perform 
-#' T_bootstrap, bootstrap_CI_level, cnr_out, bootstrap_type, pre_bs = NULL
+#' This function performs parametric bootstrap for bias-correction or uncertainty quantification for cokrig-and-regress. 
+#' Specifically, it can be used to perform the preliminary, second or non-cross-correlated bootstraps through specifying \code{bootstrap_type} to be one of 'Prelim', 'Second', or 'NCC'.
+#' 
 #' @param T_bootstrap Number of bootstrap datasets.
 #' @param bootstrap_CI_level Confidence level for constructing the bootstrap percentile intervals of the mean regression coefficients and conditional smoothers (if \code{!is.null(cnr_out$smooth_list)}) with the default being 0.95.
 #' @param cnr_out A list returned by the \code{cnr} function.
-#' @param bootstrap_type Can be one of 'Prelim', 'Second', and 'NCC', representing the preliminary, second and non-cross-correlated bootstraps, respetively.
+#' @param bootstrap_type Can be one of 'Prelim', 'Second', and 'NCC', representing the preliminary, second and non-cross-correlated bootstraps, respectively.
 #' @param pre_bs A list returned by this function, representing the preliminary bootstrap results. This only has to be specified when \code{bootstrap_type %in% c('Second','NCC')}.
 #' 
 #' @return A list with the following elements:
