@@ -2,7 +2,7 @@
 #' Parametric bootstrap for cokrig-and-regress
 #' 
 #' @description 
-#' Perform parametric bootstrap for bias-correction or uncertainty quantification for cokrig-and-regress
+#' Perform parametric bootstrap for bias-correction or uncertainty quantification for cokrig-and-regress.
 #' 
 #' @details 
 #' This function performs parametric bootstrap for bias-correction or uncertainty quantification for cokrig-and-regress. 
